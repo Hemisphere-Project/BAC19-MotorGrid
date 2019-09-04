@@ -7,7 +7,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 clients = {}
 ip_of_sender = subprocess.check_output("hostname -I" , shell=True).decode('utf-8').rstrip()
 esp_respond_sender_port = 3235
-firmware = dir_path+'/../.pio/build/esp-wrover-kit/firmware.bin'
+firmware = dir_path+'/../.pio/build/esp32-gateway/firmware.bin'
 
 version_filter = False
 if  len(sys.argv) > 1:

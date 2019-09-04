@@ -7,13 +7,19 @@
 #include <ETH.h>
 #include <ArduinoOTA.h>
 #include <Preferences.h>
+#include <AccelStepper.h>
 
-static bool eth_connected = false;
-unsigned long lastTest = 0;
 
 Preferences preferences;
 unsigned int nodeid = 0;
 unsigned int groupid = 0;
+
+static bool eth_connected = false;
+unsigned long lastTest = 0;
+
+const int stepperPin_enable = 2;  // Pin ENA+
+AccelStepper Xaxis(1, 3, 6);      // Type (TB6600: 1) , Pin DIR+ , Pin PUL+
+
 
 void WiFiEvent(WiFiEvent_t event)
 {
@@ -77,6 +83,10 @@ void testClient(const char * host, uint16_t port)
 void setup()
 {
   Serial.begin(115200);
+
+  // STEPPER INIT
+  pinMode(stepperPin_enable, OUTPUT);
+  digitalWrite(stepperPin_enable, LOW);
   
   // GROUP and ID
   preferences.begin("MotorGrid", false);
