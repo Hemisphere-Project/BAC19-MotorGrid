@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+import subprocess, socket
+import os , sys, signal
+from threading import Thread
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+clients = {}
+esp_respond_sender_port = 3235
+
+version_filter = False
+if  len(sys.argv) > 1:
+	version_filter = str(sys.argv[1])
+
+upgradeCount = 0
+
+
+from zero import *
+import time
+
+class ServiceListener(object):
+    def __init__(self):
+        self.r = Zeroconf()
+
+    def removeService(self, zeroconf, type, name):
+        print()
+        print( "Service", name, "removed")
+
+    def addService(self, zeroconf, type, name):
+        #print( "  Type is", type)
+        info = self.r.getServiceInfo(type, name)
+        if info:
+			clients[name] = {}
+			clients[name]['ip'] = str(socket.inet_ntoa(info.getAddress())).rstrip()
+			clients[name]['port'] =  str(info.getPort())
+			try:
+			    clients[name]['version'] = name.split('v')[1][:4]
+			except:
+			    clients[name]['version'] = 0
+			global upgradeCount
+			upgradeCount += 1
+			print "Device ", len(clients),": ", name.split(type)[0]
+
+
+class Upgrader(Thread):
+    def __init__(self, port, info):
+        Thread.__init__(self)
+        self.port = port
+        self.info = info
+
+    def run(self):
+        stri = "Uploading to "+str(self.info['ip'])
+        print stri
+        cmd = 'oscsend '+self.info['ip']+' 1818 /all/poweroff'
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if (p.wait() == 0):
+            stri = "Powered off " + str(self.info['ip'])
+        else:
+            stri = "Failed " + str(self.info['ip'])
+        print stri
+
+
+if __name__ == '__main__':
+    while True:
+        upgradeCount = 0
+        clients = {}
+        subprocess.call('clear',shell=True)
+        r = Zeroconf()
+        type = "_arduino._tcp.local."
+        listener = ServiceListener()
+        browser = ServiceBrowser(r, type, listener)
+        print "============================================="
+        print "============ ESP32 - PowerOFF ============"
+        print "============================================="
+        print ""
+
+        try:
+            a = raw_input("Detecting devices... Press Enter when ready.\n\n")
+        except KeyboardInterrupt:
+            r.close()
+            browser.cancel();
+            listener.r.close();
+            print "Goodbye :)"
+            os.kill(os.getpid(), signal.SIGKILL)
+
+        r.close()
+        #time.sleep(2)
+        y = raw_input("Power off "+str(upgradeCount)+" Devices ?... [y/n]\n\n")
+        if y is not 'y':
+            continue
+
+        threadlist = []
+        for esp, info in clients.items():
+            # print "Preparing upload to ", info['ip']
+            threadlist.append(Upgrader(esp_respond_sender_port, info))
+            esp_respond_sender_port += 1
+
+        for t in threadlist:
+            t.start()
+
+        for t in threadlist:
+            t.join()

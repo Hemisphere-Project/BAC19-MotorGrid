@@ -30,7 +30,7 @@ class ServiceListener(object):
     def addService(self, zeroconf, type, name):
         #print( "  Type is", type)
         info = self.r.getServiceInfo(type, name)
-        if info:
+        if info and name.startsWith('motor'):
             clients[name] = {}
             clients[name]['ip'] = str(socket.inet_ntoa(info.getAddress())).rstrip()
             clients[name]['port'] =  str(info.getPort())
