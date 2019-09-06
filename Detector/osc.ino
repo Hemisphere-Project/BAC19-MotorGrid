@@ -15,11 +15,10 @@ void osc_setup() {
         Serial.print(m.arg<float>(1));  Serial.println(" ");
     });
 
-    // bounce
-    osc.subscribe("/bounce", [](OscMessage& m)
+    // animate
+    osc.subscribe("/animate", [](OscMessage& m)
     {
-        if (m.arg<int>(0) == 0) stepper_stopBounce();
-        else stepper_startBounce();
+        Serial.println("/animate.. nothing to do yet ");
     });
 }
 

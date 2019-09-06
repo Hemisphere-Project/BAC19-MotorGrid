@@ -7,7 +7,7 @@ bool buttonState = false;
 void setup() {
 
   pinMode(LED_PIN, OUTPUT);
-  pinMode(DETECT_PIN, INPUT);
+  pinMode(DETECT_PIN, INPUT_PULLUP);
   Serial.begin(115200);
 }
 

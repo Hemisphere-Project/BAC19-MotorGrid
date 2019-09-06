@@ -8,7 +8,7 @@ WiFiServer restServer(3704);
 void rest_setup() 
 {
   rest.function("test",testRequest);
-  rest.function("bounce",rest_bounceRequest);
+  rest.function("animate",rest_animateRequest);
 }
 
 void rest_begin()
@@ -40,10 +40,8 @@ int testRequest(String param) {
   Serial.println(param);
 }
 
-// '/bounce' &param=[0|1] 
-int rest_bounceRequest(String param) {
- 
-  if (param == "0") stepper_stopBounce();
-  else stepper_startBounce();
-
+// '/animate' &param=[0|1] 
+int rest_animateRequest(String param) {
+    Serial.print("/animate.. nothing to do yet ");
 }
+

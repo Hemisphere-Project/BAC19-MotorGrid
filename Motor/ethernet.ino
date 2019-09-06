@@ -29,6 +29,7 @@ void ethernet_setup() {
 
     rest_setup();
     osc_setup();
+    osc_begin();
 
     xTaskCreatePinnedToCore(
       ethernet_task, /* Function to implement the task */
@@ -46,10 +47,10 @@ void ethernet_task( void * parameter) {
         if (eth_connected) {
 
             ArduinoOTA.handle();
-            // osc_loop();
-            // rest_loop();
+            osc_loop();
+            rest_loop();
             
-            delay(10);
+            delay(1);
         }
         else delay(100);
     }
@@ -60,9 +61,8 @@ void ethernet_task( void * parameter) {
 void ethernet_connected() {
 
     ArduinoOTA.begin();
-    Serial.println("ArduinoOTA started");
+    LOG("ArduinoOTA started");
 
-    osc_begin();
     rest_begin();
 
     digitalWrite(LED_BUILTIN, HIGH);
@@ -73,36 +73,36 @@ void WiFiEvent(WiFiEvent_t event)
 {
   switch (event) {
     case SYSTEM_EVENT_ETH_START:
-      Serial.println("ETH Started");
+      LOG("ETH Started");
       //set eth hostname here
       ETH.setHostname("esp32-ethernet");
       break;
     case SYSTEM_EVENT_ETH_CONNECTED:
-      Serial.println("ETH Connected");
+      LOG("ETH Connected");
       break;
     case SYSTEM_EVENT_ETH_GOT_IP:
       if (eth_connected) return;
       eth_connected = true;
       
-      Serial.print("ETH MAC: ");
-      Serial.print(ETH.macAddress());
-      Serial.print(", IPv4: ");
-      Serial.print(ETH.localIP());
+      LOGINL("ETH MAC: ");
+      LOGINL(ETH.macAddress());
+      LOGINL(", IPv4: ");
+      LOGINL(ETH.localIP());
       if (ETH.fullDuplex()) {
-        Serial.print(", FULL_DUPLEX");
+        LOGINL(", FULL_DUPLEX");
       }
-      Serial.print(", ");
-      Serial.print(ETH.linkSpeed());
-      Serial.println("Mbps");
+      LOGINL(", ");
+      LOGINL(ETH.linkSpeed());
+      LOG("Mbps");
 
       ethernet_connected();
       break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
-      Serial.println("ETH Disconnected");
+      LOG("ETH Disconnected");
       eth_connected = false;
       break;
     case SYSTEM_EVENT_ETH_STOP:
-      Serial.println("ETH Stopped");
+      LOG("ETH Stopped");
       eth_connected = false;
       break;
     default:

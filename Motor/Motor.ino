@@ -1,11 +1,14 @@
 #define NODEID 1
 #define GROUPID 1
 
-#define MG_VERSION 0.1  // Init & test
+#define MG_VERSION 0.2  // Init & test
 
+#define SMULTI  40
+#define SRESO   16
 
 #include <ETH.h>
 #include <Preferences.h>
+#include "debug.h"
 
 Preferences preferences;
 unsigned int nodeid = 0;
@@ -13,10 +16,16 @@ unsigned int groupid = 0;
 
 unsigned long lastTest = 0;
 
+typedef struct {
+  uint32_t pos;
+  uint32_t speed;
+  uint32_t accel;
+} step_t;
+
 
 void setup()
 {
-  Serial.begin(115200);
+  LOGSETUP();
 
   // BTN
   pinMode(34, INPUT);
@@ -33,8 +42,13 @@ void setup()
   groupid = preferences.getUInt("groupid", 254);
   preferences.end();
 
+  seq_setup();
   ethernet_setup();  
   stepper_setup();
+
+  seq_setStep(0, 5, 10, 100);
+  seq_setStep(1, 100, 200, 100);
+  // seq_setStep(2, 10, 10, 100);
 }
 
 void loop()
