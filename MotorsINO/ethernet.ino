@@ -46,8 +46,8 @@ void ethernet_task( void * parameter) {
         if (eth_connected) {
 
             ArduinoOTA.handle();
-            osc_loop();
-            rest_loop();
+            // osc_loop();
+            // rest_loop();
             
             delay(10);
         }

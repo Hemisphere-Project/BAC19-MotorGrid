@@ -34,9 +34,9 @@ void resetProcedure(){
     Serial.println("MOTOR STOP");
   }
   if(buttonState == HIGH){
+    if (!resetting) Serial.println("MOTOR MOVE UP");
     resetting = false;
     // MOTOR MOVE UP
-    Serial.println("MOTOR MOVE UP");
   }
   if((Tnow-TstartClick>resetDelay)&&(resetting==true)&&(resetDone==false)){
     resetting = false;

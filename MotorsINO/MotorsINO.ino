@@ -12,7 +12,6 @@ unsigned int nodeid = 0;
 unsigned int groupid = 0;
 
 unsigned long lastTest = 0;
-int btnPushed = false;
 
 
 void setup()
@@ -41,16 +40,5 @@ void setup()
 void loop()
 {
   stepper_loop();
-
-  if (!digitalRead(34) && !btnPushed) {
-    btnPushed = true;
-    Serial.println("BTN pressed");
-    
-    stepper_toggleBounce();
-  }
-  else if (digitalRead(34) && btnPushed) {
-    btnPushed = false;
-    Serial.println("BTN released");
-  }
 
 }
