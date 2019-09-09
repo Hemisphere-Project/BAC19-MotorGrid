@@ -1,10 +1,12 @@
-#define NODEID 1
+#define NODEID 3
 #define GROUPID 1
+
+#define CLEARMEM 0
 
 #define MG_VERSION 0.2  // Init & test
 
-#define SMULTI  40
-#define SRESO   16
+// STEPPER FACTOR  16 x 200 / 0.3
+float sfactor = 1000.0;
 
 #include <ETH.h>
 #include <Preferences.h>
@@ -17,9 +19,9 @@ unsigned int groupid = 0;
 unsigned long lastTest = 0;
 
 typedef struct {
-  uint32_t pos;
-  uint32_t speed;
-  uint32_t accel;
+  uint16_t pos;
+  uint16_t speed;
+  uint16_t accel;
 } step_t;
 
 
@@ -46,13 +48,13 @@ void setup()
   ethernet_setup();  
   stepper_setup();
 
-  seq_setStep(0, 5, 10, 100);
-  seq_setStep(1, 100, 200, 100);
+  // seq_setStep(0, 5, 10, 100);
+  // seq_setStep(1, 100, 200, 100);
+  // seq_save();
   // seq_setStep(2, 10, 10, 100);
 }
 
 void loop()
 {
   stepper_loop();
-
 }

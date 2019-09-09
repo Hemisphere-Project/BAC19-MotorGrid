@@ -16,11 +16,11 @@ void osc_setup() {
     });
 
     // animate
-    osc.subscribe("/animate", [](OscMessage& m)
-    {
-        if (m.arg<int>(0) == 0) stepper_stopAnimate();
-        else stepper_startAnimate();
-    });
+    osc.subscribe("/play", [](OscMessage& m) { stepper_play(); });
+    osc.subscribe("/stop", [](OscMessage& m) { stepper_stop(); });
+    osc.subscribe("/pause", [](OscMessage& m) { stepper_pause(); });
+    osc.subscribe("/reset", [](OscMessage& m) { stepper_reset(); });
+    // osc.subscribe("/go", [](OscMessage& m) { stepper_go(); });
 }
 
 void osc_loop() {
