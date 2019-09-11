@@ -84,6 +84,8 @@ void callStart(){
     int httpCode = http.GET();
   }
 
+  // TODO Async http request
+
   // if(httpCode > 0) {
   //     Serial.printf("[HTTP] GET... code: %d\n", httpCode);
   //     if(httpCode == HTTP_CODE_OK) {
