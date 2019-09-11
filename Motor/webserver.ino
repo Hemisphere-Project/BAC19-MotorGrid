@@ -1,11 +1,16 @@
 #include <WebServer.h>
+#include <SPIFFS.h>
+
 WebServer server(80);
 
 // SERVER
 
 void webserver_setup() {
-    server.onNotFound(webserver_notfound);
-    server.on("/", webserver_index);
+
+    
+    server.onNotFound([](){ 
+        server.send(404, "text/plain", "Not found"); 
+    });
 
     server.on("/play", [](){ 
         stepper_play(); 
@@ -56,6 +61,74 @@ void webserver_setup() {
                                             "param1 = "+String(param1)+" param2 = "+String(param2)+" param3 = "+String(param3)+"\n"  ); 
     });
 
+    // STATIC
+
+    server.on("/", [](){ 
+        String index = "";
+        int error = 0;
+
+        if(SPIFFS.begin()){
+            File file = SPIFFS.open("/index.html", "r");
+            if (file && file.size()) {
+                while (file.available()) index += char(file.read());
+                file.close();
+            }
+            else error = 2;
+        }   
+        else error = 1;
+
+        if (error) {
+            index = "Error loading index.html from ESP32... error:"+String(error);
+            LOG("WEBSERVER: Error loading index.html... error:"+String(error));
+        }
+
+        server.send(200, "text/html", index); 
+    });
+
+    server.on("/script.js", [](){ 
+        String index = "";
+        int error = 0;
+
+        if(SPIFFS.begin()){
+            File file = SPIFFS.open("/script.js", "r");
+            if (file && file.size()) {
+                while (file.available()) index += char(file.read());
+                file.close();
+            }
+            else error = 2;
+        }   
+        else error = 1;
+
+        if (error) {
+            index = "Error loading index.html from ESP32... error:"+String(error);
+            LOG("WEBSERVER: Error loading index.html... error:"+String(error));
+        }
+
+        server.send(200, "text/javascript", index); 
+    });
+
+    server.on("/http.min.js", [](){ 
+        String index = "";
+        int error = 0;
+
+        if(SPIFFS.begin()){
+            File file = SPIFFS.open("/http.min.js", "r");
+            if (file && file.size()) {
+                while (file.available()) index += char(file.read());
+                file.close();
+            }
+            else error = 2;
+        }   
+        else error = 1;
+
+        if (error) {
+            index = "Error loading index.html from ESP32... error:"+String(error);
+            LOG("WEBSERVER: Error loading index.html... error:"+String(error));
+        }
+
+        server.send(200, "text/javascript", index); 
+    });
+
     server.begin();
 }
 
@@ -63,24 +136,3 @@ void webserver_loop() {
     server.handleClient();
 }
 
-
-// HANDLERS
-
-void webserver_index() {
-  server.send(200, "text/html", webpage_index()); 
-}
-
-void webserver_notfound(){
-  server.send(404, "text/plain", "Not found");
-}
-
-
-
-
-/////  PAGES
-
-
-String webpage_index() {
-    String ptr = "index yo!";
-    return ptr;
-}

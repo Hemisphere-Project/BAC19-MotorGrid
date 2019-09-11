@@ -15,6 +15,7 @@ bool stepper_manual = false;
 int base_accel = 100;
 int base_speed = 10;
 long pauseUntil = 0;
+int repeatStep = 0;
 
 // OFFSET
 int offset_position = 2;
@@ -71,21 +72,29 @@ void stepper_execute(step_t step) {
             startMove = millis();
 
             // values
-            long pos = step.pos * posFactor;
-            long speed = step.speed * speedFactor;
-            long accel = step.accel * accelFactor;
+            long pos = step.pos;
+            long speed = step.speed;
+            long accel = step.accel;
 
             // random
-            // if (step.param1 > pos) 
+            if (step.param1 > 0) pos = random( (pos<step.param1)?pos:step.param1, (pos>step.param1)?pos+1:step.param1+1 ); 
+            if (step.param2 > 0) speed = random( (speed<step.param2)?speed:step.param2, (speed>step.param2)?speed+1:step.param2+1 ); 
+            if (step.param3 > 0) accel = random( (accel<step.param3)?accel:step.param3, (accel>step.param3)?accel+1:step.param3+1 ); 
 
-            stepper.moveTo( pos );
-            if (step.speed > 0) stepper.setMaxSpeed( speed );
-            if (step.accel > 0) stepper.setAcceleration( accel );
+            stepper.moveTo( pos * posFactor );
+            if (step.speed > 0) stepper.setMaxSpeed( speed * speedFactor );
+            if (step.accel > 0) stepper.setAcceleration( accel * accelFactor);
 
             LOGINL(" - goto position "); LOGINL( pos * posFactor   / MICROSTEP ); LOGINL(" / "); LOG( pos );
             LOGINL(" - speed "); LOGINL( speed * speedFactor       / MICROSTEP ); LOGINL(" / "); LOG( speed );
             LOGINL(" - accel "); LOGINL( accel * accelFactor       / MICROSTEP ); LOGINL(" / "); LOG( accel );
         }
+    }
+
+    // REPEAT
+    else if (step.type == SEQ_REPEAT && repeatStep == 0) {
+        LOGINL(" - repeat "); LOG( step.param1 );
+        repeatStep = step.param1;
     }
 
     stepper_unlock();
@@ -121,9 +130,16 @@ void stepper_loop() {
 
         // In position: load next step
         if (stepper.distanceToGo() == 0) {
-            LOG("SEQ next step ");
-            step_t step = seq_nextStep();
-            stepper_execute( step );
+
+            if (repeatStep > 0) {
+                LOG("SEQ repeat step ");
+                stepper_execute( seq_beforeStep() );
+                repeatStep -= 1;
+            }
+            else {
+                LOG("SEQ next step ");
+                stepper_execute( seq_nextStep() );
+            }
         }
     }
 

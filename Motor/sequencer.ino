@@ -43,6 +43,8 @@ String seq_export() {
         if (steps[x].type == SEQ_STOP) sequence += "stop; ";
         else if (steps[x].type == SEQ_GOTO) sequence += "goto; ";
         else if (steps[x].type == SEQ_WAIT) sequence += "wait; ";
+        else if (steps[x].type == SEQ_REPEAT) sequence += "repeat; ";
+        else sequence += String(steps[x].type);
         sequence += String(steps[x].pos)+"; "+String(steps[x].speed)+"; "+String(steps[x].accel)+"; ";
         sequence += String(steps[x].param1)+"; "+String(steps[x].param2)+"; "+String(steps[x].param3)+"\n";
     }
@@ -62,25 +64,24 @@ void seq_setStep(int i, int type, int pos, int speed, int accel, int param1, int
     steps[i] = step;
 }
 
-// void seq_setStep(int i, int pos, int speed) {
-//     seq_setStep(i, pos, speed, 256);
-// }
-
 
 step_t seq_getStep(int i) {
     if (i < 0 || i >= MAXSTEPS) return {SEQ_STOP, 0, 0, 0, 0, 0};
     return steps[i];
 }
 
+step_t seq_beforeStep() {
+    return seq_getStep(current_step-1);
+}
+
 step_t seq_nextStep() {
     current_step += 1;
-    step_t next = seq_getStep(current_step);
-    return next;
+    return seq_getStep(current_step);
 }
 
 step_t seq_initStep() {
-    current_step = -1;
-    return seq_nextStep();
+    current_step = 0;
+    return seq_getStep(current_step);
 }
 
 

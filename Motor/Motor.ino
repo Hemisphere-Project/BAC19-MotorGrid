@@ -30,9 +30,10 @@ unsigned long lastTest = 0;
 
 
 // SEQUENCER TYPE
-#define SEQ_STOP  0
-#define SEQ_GOTO  1
-#define SEQ_WAIT  2
+#define SEQ_STOP    0
+#define SEQ_GOTO    1
+#define SEQ_WAIT    2
+#define SEQ_REPEAT  3
 
 typedef struct {
   int type;
@@ -71,9 +72,9 @@ void setup()
   stepper_setup();
 
   seq_clear(false);
-  for (int x=0; x<20; x++) 
-    seq_setStep(x, SEQ_GOTO, 5, 50, 100, 12, 256, 5000 );
-
+  seq_setStep(0, SEQ_GOTO,    1, 100, 256, 0, 0, 0 );
+  seq_setStep(1, SEQ_GOTO,    5, 50, 100, 12, 256, 5000 );
+  seq_setStep(2, SEQ_REPEAT,  0, 0, 0, 20, 0, 0 );
   seq_save();
 
 }

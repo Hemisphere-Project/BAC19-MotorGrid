@@ -27,8 +27,6 @@ void ethernet_setup() {
     ETH.begin();
     ETH.config(localIP, gateway, subnet, dns1, dns2);
 
-    rest_setup();
-
     osc_setup();
     osc_begin();
 
@@ -51,7 +49,6 @@ void ethernet_task( void * parameter) {
 
             ArduinoOTA.handle();
             osc_loop();
-            rest_loop();
             webserver_loop();
             
             delay(1);
@@ -66,8 +63,6 @@ void ethernet_connected() {
 
     ArduinoOTA.begin();
     LOG("ArduinoOTA started");
-
-    rest_begin();
 
     digitalWrite(LED_BUILTIN, HIGH);
 }

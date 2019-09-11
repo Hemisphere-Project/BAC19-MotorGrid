@@ -9,8 +9,8 @@
   </head>
 
   <body>
-    <h2>Tlācatl story</h2>
-    <table>
+    <h2>Tlācatl mācēhualiztli</h2>
+    <!-- <table>
         <tr>
             <td>Group: </td><td>
                 <select id="dev_group">
@@ -38,16 +38,37 @@
                 </select>
             </td>
         </tr>
+    </table> -->
+    <br />
+    <table>
+        <tr>
+            <td><button id="play" onclick="play();">play</button></td>
+            <td><button id="pause" onclick="pause();">pause</button></td>
+            <td><button id="stop" onclick="stop();">stop</button></td>
+            <td><button id="reset" onclick="reset();">reset</button></td>
+            <td><button id="load" onclick="reload();">reload</button></td>
+            <td><button id="save" onclick="save();">save</button></td>
+        </tr>
     </table>
     <br />
     <table>
         <tr>
-            <td><button id="play">play</button></td>
-            <td><button id="pause">pause</button></td>
-            <td><button id="stop">stop</button></td>
-            <td><button id="reset">reset</button></td>
-            <td><button id="load">load</button></td>
-            <td><button id="save">save</button></td>
+            <td><strong>Manual</strong></td>
+        </tr>
+        <tr>
+            <td>position:</td><td> <input type="number" id="position" style="width: 7em"></input></td>
+            <td>+random:</td><td> <input type="number" id="param1" style="width: 7em"></input></td>
+        </tr>
+        <tr>
+            <td>speed:</td><td> <input type="number" id="speed" max="256" style="width: 7em"></input></td>
+            <td>+random:</td><td> <input type="number" id="param2" max="256" style="width: 7em"></input></td>
+        </tr>
+        <tr>
+            <td>accel:</td><td> <input type="number" id="accel" max="256" style="width: 7em"></input></td>
+            <td>+random:</td><td> <input type="number" id="param3" style="width: 7em"></input></td>
+        </tr>
+        <tr>
+            <td><button id="goto" onclick="go();">goto</button></td>
         </tr>
     </table>
     <br />
@@ -55,6 +76,7 @@
     <textarea id="seq" cols="100" rows="50"></textarea>
     
 
-    <script src="js/scripts.js"></script>
+    <script src="./http.min.js"></script>
+    <script src="./script.js"></script>
   </body>
 </html>
