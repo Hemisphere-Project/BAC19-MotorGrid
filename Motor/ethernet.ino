@@ -28,8 +28,11 @@ void ethernet_setup() {
     ETH.config(localIP, gateway, subnet, dns1, dns2);
 
     rest_setup();
+
     osc_setup();
     osc_begin();
+
+    webserver_setup();
 
     xTaskCreatePinnedToCore(
       ethernet_task, /* Function to implement the task */
@@ -49,6 +52,7 @@ void ethernet_task( void * parameter) {
             ArduinoOTA.handle();
             osc_loop();
             rest_loop();
+            webserver_loop();
             
             delay(1);
         }

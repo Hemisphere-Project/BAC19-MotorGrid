@@ -20,7 +20,7 @@ void rest_setup()
                                                     int accel = (splitter->getItemCount() > 2)  ? splitter->getItemAtIndex(2).toInt() : 0;
                                                     if (to > 0) {
                                                       step_t step = {to, speed, accel};
-                                                      stepper_go(step);
+                                                      stepper_goto(step);
                                                     }
 
                                                 });

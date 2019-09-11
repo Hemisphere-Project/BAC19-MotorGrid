@@ -12,22 +12,24 @@ bool stepper_animate = false;
 bool stepper_manual = false;
 
 // GLOBAL
-float base_accel = 1.0;
-float base_speed = 1.0;
+int base_accel = 100;
+int base_speed = 10;
+long pauseUntil = 0;
 
 // OFFSET
-float offset_position = 1.0;
-float offset_speed = 0.5;
+int offset_position = 2;
 
 // RESET
-float reset_steps = 100;
-float reset_speed = 1.0;
-float reset_timeClick = 0;
+int reset_steps = 1;
+int reset_speed = 1;
+int reset_timeClick = 0;
 
 // DEBUG
 long debugPos_tick = 0;
-int debugPos_interval = 1000;
+int debugPos_interval = 500;
 long debugPos_last = 0;
+long startMove = 0;
+bool debugGoingup = false;
 
 
 /*
@@ -42,18 +44,51 @@ void stepper_unlock() {
     xSemaphoreGive(stepper_mutex);
 }
 
-void stepper_goto(step_t step) {
+void stepper_execute(step_t step) {
     
-    // empty step: default to offset position
-    if (step.pos == 0) step = {offset_position, base_speed, base_accel};
-
+    // Stop current movement
     stepper_lock();
-    stepper.moveTo(step.pos * sfactor);
-    if (step.speed > 0) stepper.setMaxSpeed(step.speed * sfactor);
-    if (step.accel > 0) stepper.setAcceleration(step.accel * sfactor);
-    stepper_unlock();
+    stepper.stop();
+    stepper.runToPosition();
+    pauseUntil = 0;
 
-    LOGINL("- goto position "); LOG( step.pos * 1.0 );
+    // Stop
+    if (step.type == SEQ_STOP) {
+        stepper_unlock();
+        stepper_stop();
+        return;
+    }
+
+    // Wait
+    else if (step.type == SEQ_WAIT) {
+        pauseUntil = millis() + step.param1;
+        LOGINL(" - delay "); LOG( step.param1 );
+    }
+
+    // Goto
+    else if (step.type == SEQ_GOTO) {
+        if (step.pos > 0) {
+            startMove = millis();
+
+            // values
+            long pos = step.pos * posFactor;
+            long speed = step.speed * speedFactor;
+            long accel = step.accel * accelFactor;
+
+            // random
+            // if (step.param1 > pos) 
+
+            stepper.moveTo( pos );
+            if (step.speed > 0) stepper.setMaxSpeed( speed );
+            if (step.accel > 0) stepper.setAcceleration( accel );
+
+            LOGINL(" - goto position "); LOGINL( pos * posFactor   / MICROSTEP ); LOGINL(" / "); LOG( pos );
+            LOGINL(" - speed "); LOGINL( speed * speedFactor       / MICROSTEP ); LOGINL(" / "); LOG( speed );
+            LOGINL(" - accel "); LOGINL( accel * accelFactor       / MICROSTEP ); LOGINL(" / "); LOG( accel );
+        }
+    }
+
+    stepper_unlock();
 }
 
 
@@ -68,8 +103,8 @@ void stepper_setup() {
 
     // STEPPER INIT
     stepper_ready = false;
-    stepper.setMaxSpeed(reset_speed * sfactor);
-    stepper.setAcceleration(base_accel * sfactor);
+    stepper.setMaxSpeed(reset_speed * speedFactor);
+    stepper.setAcceleration(base_accel * accelFactor);
 }
 
 
@@ -78,24 +113,17 @@ void stepper_loop() {
     // STEPPER must find Zero
     if (stepper_resetProcedure()) return;
 
+    // STEPPER delay in progress
+    if ((pauseUntil > 0) && (millis() < pauseUntil)) return;
+
     // STEPPER animate (sequencer)
     if (stepper_animate) {
-        
+
         // In position: load next step
         if (stepper.distanceToGo() == 0) {
+            LOG("SEQ next step ");
             step_t step = seq_nextStep();
-            
-            // SEQ end
-            if (step.pos == 0) {
-                LOG("SEQ end");
-                stepper_stop();
-            }
-
-            // SEQ next
-            else {
-                LOGINL("SEQ next step ");
-                stepper_goto( step );
-            }
+            stepper_execute( step );
         }
     }
 
@@ -104,13 +132,12 @@ void stepper_loop() {
         stepper_lock();
         stepper.run();
         stepper_unlock();
+    }
 
-        // debug position
-        if ( millis() - debugPos_tick > debugPos_interval && stepper.currentPosition() != debugPos_last) {
-            debugPos_last = stepper.currentPosition();
-            debugPos_tick = millis();
-            LOGINL("-- position "); LOG( debugPos_last / sfactor );
-        }
+    // DEBUG
+    if (stepper.distanceToGo() == 0 && startMove > 0) {
+        LOGINL("Moved in "); LOG( (millis()-startMove) /1000.0);
+        startMove = 0;
     }
     
 }
@@ -127,28 +154,32 @@ bool stepper_resetProcedure() {
 
     // TOP triggered
     if ((topState == LOW)) {
+
+        // debug info
+        debugGoingup = false;
         
         // Engage Trigger watch
         if (reset_timeClick == 0) {
             reset_timeClick = millis(); 
             LOG("Top switch triggered");
-            return false;   // Pause
+            return true;   // Pause
         }
 
         // It's reset point
-        if (stepper_ready && (millis()-reset_timeClick) > stepper_waitValid ) {
+        if (stepper_ready && ((millis()-reset_timeClick) > stepper_waitValid) ) {
             stepper_ready = false;
             LOG("Resetting...");
+            return true;   // Pause
         }
 
 
         // Validate reset point
-        if ((millis()-reset_timeClick) > stepper_waitValid * 6 ) {
+        if ((millis()-reset_timeClick) > (stepper_waitValid * 6) ) {
             LOG("Reset Validated");
             stepper_lock();
             stepper.setCurrentPosition(0);
-            stepper.setMaxSpeed(reset_speed * sfactor);
-            stepper.moveTo(offset_position * sfactor);
+            stepper.setMaxSpeed(reset_speed * speedFactor);
+            stepper.moveTo( (long) (offset_position * posFactor) );
             stepper.runToPosition();
             stepper_unlock();
             reset_timeClick = 0;
@@ -163,10 +194,16 @@ bool stepper_resetProcedure() {
         // Reset point not found: going UP
         if (!stepper_ready) {
             stepper_lock();
+            stepper.setAcceleration(base_accel * accelFactor);
+            stepper.setMaxSpeed(reset_speed * speedFactor);
             stepper.move(-1*reset_steps);
             stepper.runToPosition();
+            
+            if (!debugGoingup) {
+                LOG("Going up to reset ^ ");
+                debugGoingup = true;
+            }
             stepper_unlock();
-            LOG("Going up to reset ^ ");
         }
 
         // no click
@@ -203,7 +240,7 @@ void stepper_stop() {
     LOG("Stop ");
 
     // Get Step 0 (or default to offset position)
-    stepper_goto( seq_initStep() );
+    stepper_execute( seq_initStep() );
     stepper_manual = true;
 }
 
@@ -214,9 +251,9 @@ void stepper_reset() {
     stepper_ready = false;
 }
 
-void stepper_go(step_t step) {
+void stepper_goto(step_t step) {
     LOG("Go (manual) ");
-    stepper_goto( step );
+    stepper_execute( step );
     stepper_animate = false;
     stepper_manual = true;
 }
