@@ -20,7 +20,6 @@ void osc_setup() {
     osc.subscribe("/stop", [](OscMessage& m) { stepper_stop(); });
     osc.subscribe("/pause", [](OscMessage& m) { stepper_pause(); });
     osc.subscribe("/reset", [](OscMessage& m) { stepper_reset(); });
-    // osc.subscribe("/go", [](OscMessage& m) { stepper_go(); });
 }
 
 void osc_loop() {

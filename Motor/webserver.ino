@@ -1,4 +1,5 @@
 #include <WebServer.h>
+#include "webinc.h"
 #include <SPIFFS.h>
 
 WebServer server(80);
@@ -38,8 +39,11 @@ void webserver_setup() {
 
     // Args: sequence
     server.on("/save", [](){
-
-        server.send(200, "text/plain", "");
+        if (server.hasArg("sequence")) {
+            if (seq_import( server.arg("sequence") )) server.send(200, "text/plain", seq_export());
+            else server.send(500, "text/plain", "parsing error");
+        }
+        server.send(500, "text/plain", "no sequence received");
     });
     
     // Args: position / speed / accel
@@ -85,48 +89,15 @@ void webserver_setup() {
         server.send(200, "text/html", index); 
     });
 
-    server.on("/script.js", [](){ 
-        String index = "";
-        int error = 0;
 
-        if(SPIFFS.begin()){
-            File file = SPIFFS.open("/script.js", "r");
-            if (file && file.size()) {
-                while (file.available()) index += char(file.read());
-                file.close();
-            }
-            else error = 2;
-        }   
-        else error = 1;
-
-        if (error) {
-            index = "Error loading index.html from ESP32... error:"+String(error);
-            LOG("WEBSERVER: Error loading index.html... error:"+String(error));
-        }
-
-        server.send(200, "text/javascript", index); 
+    server.on("/inner", [](){ 
+        server.send(200, "text/html", indexhtml); 
     });
-
     server.on("/http.min.js", [](){ 
-        String index = "";
-        int error = 0;
-
-        if(SPIFFS.begin()){
-            File file = SPIFFS.open("/http.min.js", "r");
-            if (file && file.size()) {
-                while (file.available()) index += char(file.read());
-                file.close();
-            }
-            else error = 2;
-        }   
-        else error = 1;
-
-        if (error) {
-            index = "Error loading index.html from ESP32... error:"+String(error);
-            LOG("WEBSERVER: Error loading index.html... error:"+String(error));
-        }
-
-        server.send(200, "text/javascript", index); 
+        server.send(200, "text/javascript", httpjs); 
+    });
+    server.on("/nanoajax.min.js", [](){ 
+        server.send(200, "text/javascript", nanoajax); 
     });
 
     server.begin();

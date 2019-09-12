@@ -1,11 +1,15 @@
-#define NODEID 3
-#define GROUPID 0
+//#define GROUPID 254
+//#define NODEID 254
 
 #define CLEARMEM 0
 #define MICROSTEP 4
 
 #define MG_VERSION 0.2  // Init & test
 #define MG_VERSION 0.3  // Calibration
+#define MG_VERSION 0.4  // Save scenario
+#define MG_VERSION 0.5  // Remove hardcoded scenario
+#define MG_VERSION 0.6  // Disable reset on group 0
+#define MG_VERSION 0.7  // UI fix
 
 // MAX SETTINGS
 long  MAX_STEPPOS   = 25000;
@@ -71,16 +75,9 @@ void setup()
   ethernet_setup();  
   stepper_setup();
 
-  seq_clear(false);
-  seq_setStep(0, SEQ_GOTO,    1, 100, 256, 0, 0, 0 );
-  seq_setStep(1, SEQ_GOTO,    5, 50, 100, 12, 256, 5000 );
-  seq_setStep(2, SEQ_REPEAT,  0, 0, 0, 20, 0, 0 );
-  seq_save();
-
 }
 
 void loop()
 {
-
   stepper_loop();
 }

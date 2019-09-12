@@ -1,82 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset='utf-8' />
+    <meta http-equiv='x-ua-compatible' content='ie=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
 
     <title></title>
   </head>
 
   <body>
-    <h2>Tlācatl mācēhualiztli</h2>
+    <h2>Tlācatl íhtōtia</h2>
+    <h4>hmsphr v1.0</h4>
     <!-- <table>
         <tr>
             <td>Group: </td><td>
-                <select id="dev_group">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="all">all</option>
+                <select id='dev_group'>
+                    <option value='0'>0</option>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                    <option value='6'>6</option>
+                    <option value='7'>7</option>
+                    <option value='all'>all</option>
                 </select>
             </td>
             <td>Id: </td><td>
-                <select id="dev_id">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="all">all</option>
+                <select id='dev_id'>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                    <option value='6'>6</option>
+                    <option value='7'>7</option>
+                    <option value='all'>all</option>
                 </select>
             </td>
         </tr>
     </table> -->
-    <br />
     <table>
         <tr>
-            <td><button id="play" onclick="play();">play</button></td>
-            <td><button id="pause" onclick="pause();">pause</button></td>
-            <td><button id="stop" onclick="stop();">stop</button></td>
-            <td><button id="reset" onclick="reset();">reset</button></td>
-            <td><button id="load" onclick="reload();">reload</button></td>
-            <td><button id="save" onclick="save();">save</button></td>
+            <td><button id='play' onclick='play();'>play</button></td>
+            <td><button id='pause' onclick='pause();'>pause</button></td>
+            <td><button id='stop' onclick='stop();'>stop</button></td>
+            <td><button id='reset' onclick='reset();'>reset</button></td>
         </tr>
     </table>
     <br />
-    <table>
-        <tr>
-            <td><strong>Manual</strong></td>
-        </tr>
-        <tr>
-            <td>position:</td><td> <input type="number" id="position" style="width: 7em"></input></td>
-            <td>+random:</td><td> <input type="number" id="param1" style="width: 7em"></input></td>
-        </tr>
-        <tr>
-            <td>speed:</td><td> <input type="number" id="speed" max="256" style="width: 7em"></input></td>
-            <td>+random:</td><td> <input type="number" id="param2" max="256" style="width: 7em"></input></td>
-        </tr>
-        <tr>
-            <td>accel:</td><td> <input type="number" id="accel" max="256" style="width: 7em"></input></td>
-            <td>+random:</td><td> <input type="number" id="param3" style="width: 7em"></input></td>
-        </tr>
-        <tr>
-            <td><button id="goto" onclick="go();">goto</button></td>
-        </tr>
-    </table>
+    <form id='gotoForm'>
+        <table>
+            <tr>
+                <td><strong>Manual</strong></td>
+            </tr>
+            <tr>
+                <td>position:</td><td> <input type='number' id='position' name='position' style='width: 7em'></input></td>
+                <td> +ran:</td><td> <input type='number' id='param1' name='param1' style='width: 7em'></input></td>
+            </tr>
+            <tr>
+                <td>speed:</td><td> <input type='number' id='speed' max='256' style='width: 7em'></input></td>
+                <td> +ran:</td><td> <input type='number' id='param2' max='256' style='width: 7em'></input></td>
+            </tr>
+            <tr>
+                <td>accel:</td><td> <input type='number' id='accel' max='256' style='width: 7em'></input></td>
+                <td> +ran:</td><td> <input type='number' id='param3' style='width: 7em'></input></td>
+            </tr>
+            <tr>
+                <td><button id='goto' onclick='go();return false;'>goto</button></td>
+            </tr>
+        </table>
+    </form>
     <br />
 
-    <textarea id="seq" cols="100" rows="50"></textarea>
+    <table>
+        <tr>
+            <td><strong>Sequence</strong></td>
+        </tr>
+        <tr>
+            <td><button id='load' onclick='load();'>load</button></td>
+            <td><button id='save' onclick='save();'>save</button></td>
+        </tr>
+    </table>
+    <form id='seqForm'>
+        <textarea id='sequence' cols='50' rows='50'></textarea>
+    </form>
     
 
-    <script src="./http.min.js"></script>
-    <script src="./script.js"></script>
+    <!-- <script src='./http.min.js'></script> -->
+    <script src='./nanoajax.min.js'></script>
+    <script>
+        console.log('hello');
+
+        function serialize(formID) {
+            var form = document.getElementById(formID);
+            var field, l, s = [];
+            if (typeof form == 'object' && form.nodeName == 'FORM') {
+                var len = form.elements.length;
+                for (var i=0; i<len; i++) {
+                    field = form.elements[i];
+                    if (field.id && !field.disabled && field.type != 'file' && field.type != 'reset' && field.type != 'submit' && field.type != 'button') {
+                        if (field.type == 'select-multiple') {
+                            l = form.elements[i].options.length; 
+                            for (var j=0; j<l; j++) {
+                                if(field.options[j].selected)
+                                    s[s.length] = encodeURIComponent(field.id) + '=' + encodeURIComponent(field.options[j].value);
+                            }
+                        } else if ((field.type != 'checkbox' && field.type != 'radio') || field.checked) {
+                            s[s.length] = encodeURIComponent(field.id) + '=' + encodeURIComponent(field.value);
+                        }
+                    }
+                }
+            }
+            return s.join('&').replace(/%20/g, '+');
+        }
+
+        function play() {
+            nanoajax.ajax({url:'/play'}, function (code, response) {
+                console.log('/play', code, response);
+            });
+        }
+
+        function pause() {
+            nanoajax.ajax({url:'/pause'}, function (code, response) {
+                console.log('/pause', code, response);
+            });
+        }
+
+        function stop() {
+            nanoajax.ajax({url:'/stop'}, function (code, response) {
+                console.log('/stop', code, response);
+            });
+        }
+
+        function reset() {
+            nanoajax.ajax({url:'/reset'}, function (code, response) {
+                console.log('/reset', code, response);
+            });
+        }
+
+        function load() {
+            nanoajax.ajax({url:'/load'}, function (code, response) {
+                var seq = document.getElementById('sequence');
+                seq.value = response; 
+                console.log('/load', code);
+            });
+        }
+
+        function go() {
+            var data = serialize('gotoForm');
+            nanoajax.ajax({url: '/goto', method: 'POST', body: data}, function (code, response, request) {
+                console.log('/goto', code, response);
+            });
+        }
+
+        function save() {
+            var data = serialize('seqForm');
+            nanoajax.ajax({url: '/save', method: 'POST', body: data}, function (code, response, request) {
+                var seq = document.getElementById('sequence');
+                seq.value = response; 
+                console.log('/save', code);
+            });
+        }
+
+
+        load();
+
+    </script>
   </body>
 </html>

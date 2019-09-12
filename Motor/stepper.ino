@@ -165,6 +165,18 @@ void stepper_loop() {
 */
 bool stepper_resetProcedure() {
 
+    // GROUP 0: ignore reset
+    if (groupid == 0) {
+        if (!stepper_ready) {
+            stepper_lock();
+            stepper.setCurrentPosition(0);
+            stepper_ready = true;
+            stepper_unlock();
+            stepper_stop();
+        }
+        return false;
+    }
+
     // TOP detect
     bool topState = digitalRead(TOP_PIN);
 
@@ -252,6 +264,8 @@ void stepper_pause() {
 void stepper_stop() {
     stepper_animate = false;
     stepper_manual = false;
+    repeatStep = 0;
+    pauseUntil = 0;
     if (!stepper_ready) return;
     LOG("Stop ");
 
