@@ -9,7 +9,7 @@
 #define MG_VERSION 0.4  // Save scenario
 #define MG_VERSION 0.5  // Remove hardcoded scenario
 #define MG_VERSION 0.6  // Disable reset on group 0
-#define MG_VERSION 0.7  // UI fix
+#define MG_VERSION 0.7  // UI fi
 
 // MAX SETTINGS
 long  MAX_STEPPOS   = 25000;
