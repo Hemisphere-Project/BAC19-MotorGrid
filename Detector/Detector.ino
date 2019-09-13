@@ -128,3 +128,24 @@ void triggerGroup(int grp){
   }
 
 }
+
+void stopMyGroup(){
+  if(!eth_isConnected) return;
+  HTTPClient http;
+  for (int i = 1; i < 8; i++) {
+    String stopUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/stop";
+    http.begin(stopUrl);
+    http.setConnectTimeout(100);
+    http.end();
+  }
+}
+void resetMyGroup(){
+  if(!eth_isConnected) return;
+  HTTPClient http;
+  for (int i = 1; i < 8; i++) {
+    String resetUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/reset";
+    http.begin(resetUrl);
+    http.setConnectTimeout(100);
+    http.end();
+  }
+}

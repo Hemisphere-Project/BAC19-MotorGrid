@@ -10,10 +10,17 @@ void webserver_setup() {
     server.onNotFound([](){
         server.send(404, "text/plain", "Not found");
     });
-
     server.on("/play", [](){
         triggerAction();
-        server.send(200, "text/plain", "Called Start !");
+        server.send(200, "text/plain", "Trigger Action");
+    });
+    server.on("/stop", [](){
+        stopMyGroup();
+        server.send(200, "text/plain", "Stop Group");
+    });
+    server.on("/reset", [](){
+        resetMyGroup();
+        server.send(200, "text/plain", "Reset Group");
     });
 
     // STATIC
