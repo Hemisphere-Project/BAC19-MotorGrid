@@ -9,8 +9,7 @@
   </head>
 
   <body>
-    <h2>Tlācatl íhtōtia</h2>
-    <h4>hmsphr v1.2</h4>
+    <h2>Tlācatl íhtōtia    v1.3</h2>
     <!-- <table>
         <tr>
             <td>Group: </td><td>
@@ -80,6 +79,7 @@
         <tr>
             <td><button id='load' onclick='load();'>load</button></td>
             <td><button id='save' onclick='save();'>save</button></td>
+            <td><button id='save' onclick='saveGroup();'>save group</button></td>
         </tr>
     </table>
     <form id='seqForm'>
@@ -90,7 +90,16 @@
     <!-- <script src='./http.min.js'></script> -->
     <script src='./nanoajax.min.js'></script>
     <script>
-        console.log('hello');
+
+        var ip = window.location.href.split("://")[1].split('/')[0];
+        var nodeid = ip.split('.')[3];
+        var groupid = ip.split('.')[2];
+
+        var groupip = ip.split('.')
+        groupip.pop()
+        groupip = groupip.join('.')+'.'
+
+        console.log('hello', groupid, nodeid, groupip);
 
         function serialize(formID) {
             var form = document.getElementById(formID);
@@ -162,6 +171,16 @@
                 console.log('/save', code);
             });
         }
+
+        function saveGroup() {
+            var data = serialize('seqForm');
+            for(var k=1; k<7; k++) {
+                nanoajax.ajax({url: 'http://'+groupip+k+'/save', method: 'POST', body: data, headers: {'X-Requested-With': 'XMLHttpRequest'}}, function (code, response, request) {
+                    console.log('/save', code, request);
+                });
+            }
+        }
+        
 
 
         load();

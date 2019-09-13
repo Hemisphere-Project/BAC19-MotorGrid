@@ -27,9 +27,6 @@ void ethernet_setup() {
     ETH.begin();
     ETH.config(localIP, gateway, subnet, dns1, dns2);
 
-    osc_setup();
-    osc_begin();
-
     webserver_setup();
 
     xTaskCreatePinnedToCore(
@@ -48,7 +45,6 @@ void ethernet_task( void * parameter) {
         if (eth_connected) {
 
             ArduinoOTA.handle();
-            osc_loop();
             webserver_loop();
             
             delay(1);

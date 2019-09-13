@@ -5,7 +5,7 @@ from threading import Thread
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 clients = {}
-ip_of_sender = subprocess.check_output("hostname -I" , shell=True).decode('utf-8').rstrip()
+ip_of_sender = subprocess.check_output("hostname -I" , shell=True).decode('utf-8').rstrip().split(' ')[-1]
 esp_respond_sender_port = 3235
 firmware = dir_path+'/../Detector/Detector.ino.esp32-gateway.bin'
 nameFilter = "detector-"
@@ -43,16 +43,12 @@ class ServiceListener(object):
             if clients[name]['upgrade']:
                 global upgradeCount
                 upgradeCount += 1
-            print "Device ", len(clients),": ", name.split(type)[0], "UPGRADABLE" if  clients[name]['upgrade'] else "OK"
-            
-            #print( "  Weight is %d, Priority is %d" % (info.getWeight(),
-            #                                          info.getPriority()))
-            #print( "  Server is", info.getServer())
-            #prop = info.getProperties()
-            #if prop:
-            #    print( "  Properties are")
-            #    for key, value in prop.items():
-            #        print( "    %s: %s" % (key, value))
+
+            # Print
+            printer()
+            # print "Device ", len(clients),": ", name.split(type)[0], "UPGRADABLE" if  clients[name]['upgrade'] else "OK"
+
+
             
             
 class Upgrader(Thread):       
@@ -62,15 +58,34 @@ class Upgrader(Thread):
         self.info = info
 
     def run(self):
-        stri = "Uploading to "+str(self.info['ip'])
+        stri = "Uploading Firmware to "+str(self.info['ip'])
         print stri
         cmd = 'python ~/.arduino15/packages/esp32/hardware/esp32/1.0.3-rc3/tools/espota.py -i '+self.info['ip']+' -I '+ip_of_sender+' -p '+self.info['port']+' -P '+str(self.port)+' -f '+firmware
+        # print cmd
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if (p.wait() == 0):
             stri = "Updated " + str(self.info['ip'])
         else:
             stri = "Failed " + str(self.info['ip'])
         print stri
+
+
+def printer():
+    subprocess.call('clear',shell=True)
+    header = ""
+    header += "=============================================\n"
+    header += "============ ESP32 - OTA FIRMWARE updater ===\n"
+    header += "=============================================\n"
+    header += "\n"
+    header += "LOCAL ip: "+ str(ip_of_sender)+"\n"
+    header += "Firmware date: " + str(time.ctime(os.stat(firmware).st_mtime))+"\n"
+    header += "\n"
+    print (header)
+
+    for k, cli in enumerate(sorted(clients.iteritems())):
+        print "Device ", str(k+1).zfill(2),": ", cli[0].split('._arduino')[0], "UPGRADABLE" if  cli[1]['upgrade'] else "OK"
+
+    print "\nDetecting devices... Press Enter when ready."
 
  
 if __name__ == '__main__':
@@ -82,16 +97,11 @@ if __name__ == '__main__':
         type = "_arduino._tcp.local."
         listener = ServiceListener()
         browser = ServiceBrowser(r, type, listener)
-        # print("LOCAL ip: "+ str(ip_of_sender) +"\n")
-        print "============================================="
-        print "============ ESP32 - OTA updater ============"
-        print "============================================="
-        print ""
-        print "Firmware date: ", time.ctime(os.stat(firmware).st_mtime)
-        print ""
+
+        printer()
 
         try:
-            a = raw_input("Detecting devices... Press Enter when ready.\n\n")
+            a = raw_input("...")
         except KeyboardInterrupt:
             r.close()
             browser.cancel();
@@ -117,8 +127,6 @@ if __name__ == '__main__':
         
         for t in threadlist:
             t.join()
-    	
-        exit();
-    	
+    	    	
     	
 

@@ -7,10 +7,12 @@ WebServer server(80);
 // SERVER
 
 void webserver_setup() {
-
     
     server.onNotFound([](){ 
-        server.send(404, "text/plain", "Not found"); 
+        server.sendHeader("Access-Control-Allow-Origin","*");
+        server.sendHeader("Access-Control-Allow-Headers","x-test-header, Origin, X-Requested-With, Content-Type, Accept");
+        if (server.method() == HTTP_OPTIONS) server.send(204);
+        else server.send(404, "text/plain", "Not found");
     });
 
     server.on("/play", [](){ 
@@ -39,11 +41,16 @@ void webserver_setup() {
 
     // Args: sequence
     server.on("/save", [](){
-        if (server.hasArg("sequence")) {
-            if (seq_import( server.arg("sequence") )) server.send(200, "text/plain", seq_export());
-            else server.send(500, "text/plain", "parsing error");
+        server.sendHeader("Access-Control-Allow-Origin","*");
+        server.sendHeader("Access-Control-Allow-Headers","x-test-header, Origin, X-Requested-With, Content-Type, Accept");
+        if (server.method() == HTTP_OPTIONS) server.send(204);
+        else {
+            if (server.hasArg("sequence")) {
+                if (seq_import( server.arg("sequence") )) server.send(200, "text/plain", seq_export());
+                else server.send(500, "text/plain", "parsing error");
+            }
+            server.send(500, "text/plain", "no sequence received");
         }
-        server.send(500, "text/plain", "no sequence received");
     });
     
     // Args: position / speed / accel

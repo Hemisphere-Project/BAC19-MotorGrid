@@ -21,7 +21,6 @@ int repeatStep = 0;
 int offset_position = 2;
 
 // RESET
-int reset_zero = -2;
 int reset_steps = 1;
 int reset_speed = 1;
 int reset_timeClick = 0;
@@ -167,7 +166,7 @@ void stepper_loop() {
 bool stepper_resetProcedure() {
 
     // GROUP 0: ignore reset
-    if (groupid == 0) {
+    if (groupid == 10) {
         if (!stepper_ready) {
             stepper_lock();
             stepper.setCurrentPosition(0);
@@ -206,10 +205,11 @@ bool stepper_resetProcedure() {
         if ((millis()-reset_timeClick) > (stepper_waitValid * 6) ) {
             LOG("Reset Validated");
             stepper_lock();
-            stepper.setCurrentPosition(reset_zero);
+            stepper.setCurrentPosition(0);
             stepper.setMaxSpeed(reset_speed * speedFactor);
             stepper.moveTo( (long) (offset_position * posFactor) );
             stepper.runToPosition();
+            stepper.setCurrentPosition(0);
             stepper_unlock();
             reset_timeClick = 0;
             stepper_ready = true;

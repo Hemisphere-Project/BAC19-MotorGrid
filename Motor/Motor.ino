@@ -10,7 +10,9 @@
 #define MG_VERSION 0.5  // Remove hardcoded scenario
 #define MG_VERSION 0.6  // Disable reset on group 0
 #define MG_VERSION 0.7  // UI fix
-#define MG_VERSION 0.8  // Reset zero fix
+#define MG_VERSION 0.81  // Reset zero fix
+#define MG_VERSION 0.9  // Remove OSC
+#define MG_VERSION 1.1  // Allow cross origin
 
 // MAX SETTINGS
 long  MAX_STEPPOS   = 25000;

@@ -43,16 +43,12 @@ class ServiceListener(object):
             if clients[name]['upgrade']:
                 global upgradeCount
                 upgradeCount += 1
-            print "Device ", len(clients),": ", name.split(type)[0], "UPGRADABLE" if  clients[name]['upgrade'] else "OK"
-            
-            #print( "  Weight is %d, Priority is %d" % (info.getWeight(),
-            #                                          info.getPriority()))
-            #print( "  Server is", info.getServer())
-            #prop = info.getProperties()
-            #if prop:
-            #    print( "  Properties are")
-            #    for key, value in prop.items():
-            #        print( "    %s: %s" % (key, value))
+
+            # Print
+            printer()
+            # print "Device ", len(clients),": ", name.split(type)[0], "UPGRADABLE" if  clients[name]['upgrade'] else "OK"
+
+
             
             
 class Upgrader(Thread):       
@@ -73,6 +69,24 @@ class Upgrader(Thread):
             stri = "Failed " + str(self.info['ip'])
         print stri
 
+
+def printer():
+    subprocess.call('clear',shell=True)
+    header = ""
+    header += "=============================================\n"
+    header += "============ ESP32 - OTA FIRMWARE updater ===\n"
+    header += "=============================================\n"
+    header += "\n"
+    header += "LOCAL ip: "+ str(ip_of_sender)+"\n"
+    header += "Firmware date: " + str(time.ctime(os.stat(firmware).st_mtime))+"\n"
+    header += "\n"
+    print (header)
+
+    for k, cli in enumerate(sorted(clients.iteritems())):
+        print "Device ", str(k+1).zfill(2),": ", cli[0].split('._arduino')[0], "UPGRADABLE" if  cli[1]['upgrade'] else "OK"
+
+    print "\nDetecting devices... Press Enter when ready."
+
  
 if __name__ == '__main__':
     while True:
@@ -83,16 +97,11 @@ if __name__ == '__main__':
         type = "_arduino._tcp.local."
         listener = ServiceListener()
         browser = ServiceBrowser(r, type, listener)
-        print "============================================="
-        print "============ ESP32 - OTA FIRMWARE updater ==="
-        print "============================================="
-        print ""
-        print("LOCAL ip: "+ str(ip_of_sender))
-        print "Firmware date: ", time.ctime(os.stat(firmware).st_mtime)
-        print ""
+
+        printer()
 
         try:
-            a = raw_input("Detecting devices... Press Enter when ready.\n\n")
+            a = raw_input("...")
         except KeyboardInterrupt:
             r.close()
             browser.cancel();
