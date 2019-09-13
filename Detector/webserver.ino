@@ -14,11 +14,15 @@ void webserver_setup() {
         triggerAction();
         server.send(200, "text/plain", "Trigger Action");
     });
-    server.on("/stop", [](){
+    server.on("/playgroup", [](){
+        triggerMyGroup();
+        server.send(200, "text/plain", "Trigger My Group");
+    });
+    server.on("/stopgroup", [](){
         stopMyGroup();
         server.send(200, "text/plain", "Stop Group");
     });
-    server.on("/reset", [](){
+    server.on("/resetgroup", [](){
         resetMyGroup();
         server.send(200, "text/plain", "Reset Group");
     });

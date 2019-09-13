@@ -129,6 +129,17 @@ void triggerGroup(int grp){
 
 }
 
+void triggerMyGroup(){
+  if(!eth_isConnected) return;
+  HTTPClient http;
+  for (int i = 1; i < 8; i++) {
+    String playUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/play";
+    http.begin(playUrl);
+    http.setConnectTimeout(100);
+    http.end();
+  }
+}
+
 void stopMyGroup(){
   if(!eth_isConnected) return;
   HTTPClient http;
