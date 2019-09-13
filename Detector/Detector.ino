@@ -1,6 +1,9 @@
-#define GROUPID 0 // 1 TO 7
-#define NODEID 254
+// #define GROUPID 7 // 1 TO 7
+// #define NODEID 254
 
+#define DETECTORS_VERSION 0.1  // Init
+
+#define BTN_PIN     34
 #define LED_PIN     33
 #define DETECT_PIN  36
 
@@ -16,18 +19,21 @@ unsigned int groupid = 0;
 // UTILS
 bool detectState = false;
 bool starting = true;
+bool startingBtn = true;
 unsigned long Tnow = 0;
 unsigned long Tlast = 0;
+unsigned long TlastBtn = 0;
 
 // TIMING
-unsigned long timeLineDuration = 20000;
-unsigned long pauseDuration = 10000;
+unsigned long timeLineDuration = 10000;
+unsigned long pauseDuration = 2000;
 
 void setup() {
 
   // PINS
   pinMode(LED_PIN, OUTPUT);
   pinMode(DETECT_PIN, INPUT_PULLUP);
+  pinMode(BTN_PIN, INPUT);
 
   // SERIAL
   Serial.begin(115200);
@@ -60,6 +66,13 @@ void loop() {
     callStart();
   }
 
+  if( ((Tnow-TlastBtn>timeLineDuration+pauseDuration)||(startingBtn==true)) && (digitalRead(BTN_PIN)==LOW)){
+    Serial.println("CALL START w BTN");
+    TlastBtn = Tnow;
+    startingBtn = false;
+    callStart();
+  }
+
 }
 
 void callStart(){
@@ -74,27 +87,16 @@ void callStart(){
   }
 
   HTTPClient http;
-  // String playUrl = "http://10.0.0.3/play";
-  // http.begin(playUrl);
-  // int httpCode = http.GET();
 
   for (int i = 1; i < 8; i++) {
     String playUrl = "http://10.0."+String(groupid)+"."+String(i)+"/play";
     http.begin(playUrl);
+    http.setConnectTimeout(100);
     int httpCode = http.GET();
+    if(httpCode == HTTP_CODE_OK) { Serial.println("ok"); }
+    else { Serial.println("connection pb"); }
+    http.end();
   }
 
-  // TODO Async http request
-
-  // if(httpCode > 0) {
-  //     Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-  //     if(httpCode == HTTP_CODE_OK) {
-  //         String payload = http.getString();
-  //         Serial.println(payload);
-  //     }
-  // }
-  // else { Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str()); }
-
-  http.end();
 
 }

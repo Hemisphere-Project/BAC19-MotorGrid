@@ -5,12 +5,6 @@ static bool eth_connected = false;
 
 void ethernet_setup() {
 
-    // LED inbuilt
-    // pinMode(LED_BUILTIN, OUTPUT);
-    // digitalWrite(LED_BUILTIN, HIGH);
-    // delay(100);
-    // digitalWrite(LED_BUILTIN, LOW);
-
     // STATIC IP
     IPAddress localIP(10, 0, groupid, nodeid);
     IPAddress gateway(10, 0, 0, 1);
@@ -19,7 +13,7 @@ void ethernet_setup() {
     IPAddress dns2(8, 8, 4, 4);
 
     // OTA SETUP
-    String devicename = "detector-" + String(groupid)+"."+String(nodeid) + "-v" + String(0, 2);
+    String devicename = "detector-" + String(groupid)+"."+String(nodeid) + "-v" + String(DETECTORS_VERSION, 2);
     ArduinoOTA.setHostname(devicename.c_str());
 
     // ETHERNET CONNECT
@@ -27,8 +21,7 @@ void ethernet_setup() {
     ETH.begin();
     ETH.config(localIP, gateway, subnet, dns1, dns2);
 
-    // rest_setup();
-    // osc_setup();
+    webserver_setup();
 
     xTaskCreatePinnedToCore(
       ethernet_task, /* Function to implement the task */
@@ -44,12 +37,9 @@ void ethernet_task( void * parameter) {
 
     while(true) {
         if (eth_connected) {
-
             ArduinoOTA.handle();
-            // osc_loop();
-            // rest_loop();
-
-            delay(10);
+            webserver_loop();
+            delay(1);
         }
         else delay(100);
     }
@@ -61,11 +51,6 @@ void ethernet_connected() {
 
     ArduinoOTA.begin();
     Serial.println("ArduinoOTA started");
-
-    // osc_begin();
-    // rest_begin();
-
-    // digitalWrite(LED_BUILTIN, HIGH);
 }
 
 
