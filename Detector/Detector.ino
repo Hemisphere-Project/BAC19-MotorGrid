@@ -1,5 +1,5 @@
-#define GROUPID 100 // Fixe
-#define NODEID 7  // 1 to 7
+// #define GROUPID 100 // Fixe
+// #define NODEID 7  // PIR 1 to 7
 
 #define DETECTORS_VERSION 0.1  // Init
 
