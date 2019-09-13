@@ -1,5 +1,5 @@
-//#define GROUPID 254
-//#define NODEID 254
+// #define GROUPID 0
+// #define NODEID 10
 
 #define CLEARMEM 0
 #define MICROSTEP 4
@@ -9,7 +9,8 @@
 #define MG_VERSION 0.4  // Save scenario
 #define MG_VERSION 0.5  // Remove hardcoded scenario
 #define MG_VERSION 0.6  // Disable reset on group 0
-#define MG_VERSION 0.7  // UI fi
+#define MG_VERSION 0.7  // UI fix
+#define MG_VERSION 0.8  // Reset zero fix
 
 // MAX SETTINGS
 long  MAX_STEPPOS   = 25000;

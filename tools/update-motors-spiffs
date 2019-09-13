@@ -5,9 +5,9 @@ from threading import Thread
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 clients = {}
-ip_of_sender = subprocess.check_output("hostname -I" , shell=True).decode('utf-8').rstrip()
+ip_of_sender = subprocess.check_output("hostname -I" , shell=True).decode('utf-8').rstrip().split(' ')[-1]
 esp_respond_sender_port = 3235
-firmware = dir_path+'/../Motor/Motor.ino.esp32-gateway.bin'
+firmware = '/tmp/arduino_build_786615/Motor.spiffs.bin'
 nameFilter = "motor-"
 
 version_filter = False
@@ -62,9 +62,10 @@ class Upgrader(Thread):
         self.info = info
 
     def run(self):
-        stri = "Uploading to "+str(self.info['ip'])
+        stri = "Uploading SPIFFS to "+str(self.info['ip'])
         print stri
-        cmd = 'python ~/.arduino15/packages/esp32/hardware/esp32/1.0.3-rc3/tools/espota.py -i '+self.info['ip']+' -I '+ip_of_sender+' -p '+self.info['port']+' -P '+str(self.port)+' -f '+firmware
+        cmd = 'python ~/.arduino15/packages/esp32/hardware/esp32/1.0.3-rc3/tools/espota.py -i '+self.info['ip']+' -I '+ip_of_sender+' -p '+self.info['port']+' -P '+str(self.port)+' --spiffs -f '+firmware
+        # print cmd
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if (p.wait() == 0):
             stri = "Updated " + str(self.info['ip'])
@@ -82,12 +83,12 @@ if __name__ == '__main__':
         type = "_arduino._tcp.local."
         listener = ServiceListener()
         browser = ServiceBrowser(r, type, listener)
-        # print("LOCAL ip: "+ str(ip_of_sender) +"\n")
         print "============================================="
-        print "============ ESP32 - OTA updater ============"
+        print "============ ESP32 - SPIFFS OTA updater ====="
         print "============================================="
         print ""
-        print "Firmware date: ", time.ctime(os.stat(firmware).st_mtime)
+        print("LOCAL ip: "+ str(ip_of_sender))
+        print "SPIFFS date: ", time.ctime(os.stat(firmware).st_mtime)
         print ""
 
         try:
@@ -117,8 +118,6 @@ if __name__ == '__main__':
         
         for t in threadlist:
             t.join()
-    	
-        exit();
-    	
-    	
+    	    	
+    	# exit()
 
