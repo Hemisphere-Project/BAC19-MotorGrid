@@ -12,7 +12,7 @@ void webserver_setup() {
     });
 
     server.on("/play", [](){
-        callStart();
+        triggerAction();
         server.send(200, "text/plain", "Called Start !");
     });
 
