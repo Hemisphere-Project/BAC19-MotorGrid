@@ -98,6 +98,9 @@ void triggerAction(){
     delay(5000);
 
     for (int i = 1; i < 8; i++) { triggerGroup(i,0); }
+
+    delay(10000);
+    for (int i = 1; i < 8; i++) { stopGroup(i); }
   }
 
   // PIR 2
@@ -120,6 +123,9 @@ void triggerAction(){
     for (int i = 1; i < 8; i++) { triggerGroup(i,5); }
     delay(2000);
     for (int i = 1; i < 8; i++) { triggerGroup(i,6); }
+
+    delay(10000);
+    for (int i = 1; i < 8; i++) { stopGroup(i); }
 
   }
 
@@ -168,6 +174,20 @@ void triggerMyGroup(){
     String playUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/play";
     http.begin(playUrl);
     http.setConnectTimeout(100);
+    http.GET();
+    http.end();
+  }
+}
+
+
+void stopGroup(int grp){
+  if(!eth_isConnected) return;
+  HTTPClient http;
+  for (int i = 1; i < 8; i++) {
+    String stopUrl = "http://10.0."+String(grp)+"."+String(i)+"/stop";
+    http.begin(stopUrl);
+    http.setConnectTimeout(100);
+    http.GET();
     http.end();
   }
 }
@@ -179,6 +199,7 @@ void stopMyGroup(){
     String stopUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/stop";
     http.begin(stopUrl);
     http.setConnectTimeout(100);
+    http.GET();
     http.end();
   }
 }
@@ -189,6 +210,7 @@ void resetMyGroup(){
     String resetUrl = "http://10.0."+String(nodeid)+"."+String(i)+"/reset";
     http.begin(resetUrl);
     http.setConnectTimeout(100);
+    http.GET();
     http.end();
   }
 }
